@@ -5,11 +5,6 @@ import Link from "next/link";
 
 function Header() {
   const { userId } = auth();
-  const url = `${
-    process.env.NODE_ENV === "development"
-      ? "http://localhost:3000"
-      : process.env.VERCEL_URL
-  }/translate?userId=${userId}`;
 
   return (
     <header className="flex justify-between px-8 border-b mb-5">
@@ -31,7 +26,7 @@ function Header() {
           <UserButton />
         </div>
       ) : (
-        <SignInButton afterSignInUrl={url} mode="modal" />
+        <SignInButton afterSignInUrl="/translate" mode="modal" />
       )}
     </header>
   );

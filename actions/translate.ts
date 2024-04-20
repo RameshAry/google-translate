@@ -1,8 +1,10 @@
 'use server'
 
 import { State } from "@/components/TranslationForm";
+import { addOrUpdateUser } from "@/mangodb/models/User";
 import { auth } from "@clerk/nextjs/server";
 import axios from "axios";
+import { revalidateTag } from "next/cache";
 import { v4 } from "uuid";
 
 async function translate(prevState: State, formData: FormData) {
@@ -21,7 +23,7 @@ async function translate(prevState: State, formData: FormData) {
 
     const response = await axios({
         baseURL: process.env.AZURE_TEXT_TRANSLATION,
-        url: '/translate',
+        url: 'translate',
         method: 'POST',
         headers: {
             "Ocp-Apim-Subscription-Key": process.env.AZURE_TEXT_TRANSLATION_KEY!,
@@ -47,6 +49,24 @@ async function translate(prevState: State, formData: FormData) {
     }
 
     // push to mangoDB
+    if (rawFormData.inputLanguage === 'auto') {
+        rawFormData.inputLanguage = data[0].detectedLanguage.language;
+    }
+
+    try {
+        const translation = {
+            to: rawFormData.outputLanguage,
+            from: rawFormData.inputLanguage,
+            fromText: rawFormData.input,
+            toText: data[0].translations[0].text
+        }
+        addOrUpdateUser(userId, translation)
+        
+    } catch (err) {
+        console.log("Error adding translation to use: ", err)
+    }
+
+    revalidateTag('translationHistory');
 
     return {
         ...prevState, 

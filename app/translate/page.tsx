@@ -1,4 +1,5 @@
 import TranslationForm from "@/components/TranslationForm";
+import TranslationHistory from "@/components/TranslationHistory";
 import { auth } from "@clerk/nextjs/server";
 import React from "react";
 
@@ -33,7 +34,7 @@ async function Translate() {
     <div className="px-10 lg:px-0 mb-20">
       <TranslationForm languages={languages} />
 
-      {/* Translation History */}
+      <TranslationHistory />
     </div>
   );
 }
